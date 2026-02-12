@@ -1,0 +1,7 @@
+requests
+openmeteo-requests
+pandas
+requests-cache
+retry-requests
+snowflake-connector-python
+dotenv

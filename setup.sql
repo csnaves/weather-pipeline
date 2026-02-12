@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS raw_weather (
+    raw OBJECT,
+    loaded_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
+);
