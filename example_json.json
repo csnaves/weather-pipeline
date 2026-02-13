@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-02-13 00:00:00+00:00",
+  "location": "Atlanta, Georgia",
+  "latitude": 33.63439178466797,
+  "longitude": -84.48269653320312,
+  "temperature_2m": 53.228302001953125,
+  "is_day": 0.0,
+  "precipitation_probability": 0.0,
+  "precipitation": 0.0,
+  "mode": "forecast"
+}

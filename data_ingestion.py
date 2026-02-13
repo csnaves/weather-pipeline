@@ -89,7 +89,7 @@ def get_weather(latitudes, longitudes, mode="history"):
         params["forecast_hours"] = 0
     else:
         params["past_hours"] = 0
-        params["forecast_hours"] = 1
+        params["forecast_hours"] = 2
 
     responses = openmeteo.weather_api(url, params=params)
     return responses
@@ -101,7 +101,7 @@ def parse_responses(responses: list[WeatherApiResponse], location_label):
     for response in responses:
         hourly = response.Hourly()
         hourly_data = {
-            "timestamp": pd.date_range(
+            "forecast_timestamp": pd.date_range(
                 start=pd.to_datetime(hourly.Time(), unit="s", utc=True),
                 end=pd.to_datetime(hourly.TimeEnd(), unit="s", utc=True),
                 freq=pd.Timedelta(seconds=hourly.Interval()),
@@ -114,6 +114,7 @@ def parse_responses(responses: list[WeatherApiResponse], location_label):
             "is_day": hourly.Variables(1).ValuesAsNumpy(),
             "precipitation_probability": hourly.Variables(2).ValuesAsNumpy(),
             "precipitation": hourly.Variables(3).ValuesAsNumpy(),
+            "ingested_at": datetime.now(timezone.utc)
         }
         dataframes.append(pd.DataFrame(data=hourly_data))
     return dataframes
@@ -141,7 +142,8 @@ def responses_to_json(dataframes: list[pd.DataFrame], location_label, mode):
     with open(filepath, "w") as f:
         for df in dataframes:
             df_serializable = df.copy()
-            df_serializable["timestamp"] = df_serializable["timestamp"].astype(str)
+            df_serializable["forecast_timestamp"] = df_serializable["forecast_timestamp"].astype(str)
+            df_serializable["ingested_at"] = df_serializable["ingested_at"].astype(str)
             for record in df_serializable.to_dict(orient="records"):
                 record["mode"] = mode
                 f.write(json.dumps(record) + "\n")
@@ -192,7 +194,7 @@ def ingest(mode, locations=None, dry_run=False):
                 lat = df["latitude"].iloc[0]
                 lon = df["longitude"].iloc[0]
                 print(f"\nCoordinates: {lat}°N {lon}°E")
-                print(df.to_string(index=False))
+                print(df)
 
             json_path = responses_to_json(dataframes, label, mode)
             print(f"\nJSON written to: {json_path}")
